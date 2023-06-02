@@ -1,14 +1,22 @@
-import './App.css';
+import React, { useState } from 'react';
 import Navbar from './components/Navbar';
 import Search from './components/Search';
+import Weatherbox from './components/Weatherbox';
 
-function App() {
+const App = () => {
+  const [searchLocation, setSearchLocation] = useState('');
+
+  const handleSearch = (location) => {
+    setSearchLocation(location);
+  };
+
   return (
-    <>
-    <Navbar />
-    <Search />
-    </>
+    <div>
+      <Navbar/>
+      <Search onSearch={handleSearch} />
+      {searchLocation && <Weatherbox location={searchLocation} />}
+    </div>
   );
-}
+};
 
 export default App;
