@@ -1,14 +1,18 @@
 import React, { useState, useEffect } from 'react';
 
-const WeatherBox = ({ location }) => {
+const WeatherBox = (props) => {
   const [weatherData, setWeatherData] = useState(null);
+  const [error, setError] = useState(false);
 
   useEffect(() => {
-    const apiKey = '1545a035347df6825fab878622116f75';
-    const apiUrl = `https://api.openweathermap.org/data/2.5/weather?q=${location}&appid=${apiKey}&units=metric`;
-
+    const apiUrl = `https://api.openweathermap.org/data/2.5/weather?q=${props.location}&appid=${process.env.REACT_APP_API_KEY}&units=metric`;
     fetch(apiUrl)
-      .then(response => response.json())
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('Failed to fetch weather data');
+        }
+        return response.json();
+      })
       .then(data => {
         const { weather, main, sys, wind } = data;
         const temperature = `${Math.round(main.temp)}°C`;
@@ -29,11 +33,17 @@ const WeatherBox = ({ location }) => {
         };
 
         setWeatherData(weatherData);
+        setError(false);
       })
       .catch(error => {
         console.error('Error fetching weather data:', error);
+        setError(true);
       });
-  }, [location]);
+  }, [props.location]);
+
+  if (error) {
+    return <div>Error fetching weather data.</div>;
+  }
 
   if (!weatherData) {
     return <div>Loading...</div>;
@@ -50,7 +60,7 @@ const WeatherBox = ({ location }) => {
   } = weatherData;
 
   return (
-    <div className="container">
+    <div className="container d-flex justify-content-center">
       <div className="weather-card">
         <img src={weatherImage} className="weather-image" alt="Weather" style={{ width: "15vw" }} />
         <div className="temperature text-light">
@@ -87,3 +97,4 @@ const WeatherBox = ({ location }) => {
 };
 
 export default WeatherBox;
+
